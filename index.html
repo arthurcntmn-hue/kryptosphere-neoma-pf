@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kryptosphère NEOMA - Portfolio Dashboard</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000000;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: #ffffff;
+        }
+        
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 260px;
+            background: #000000;
+            border-right: 1px solid #1a1a1a;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-hidden {
+            transform: translateX(-100%);
+        }
+        
+        .main-content {
+            margin-left: 260px;
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
+        }
+        
+        .main-content-full {
+            margin-left: 0;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            color: #888888;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .nav-item:hover {
+            background: #0a0a0a;
+            color: #ffffff;
+            border-left-color: #3b82f6;
+        }
+        
+        .nav-item.active {
+            background: #0a0a0a;
+            color: #3b82f6;
+            border-left-color: #3b82f6;
+        }
+        
+        .top-bar {
+            background: #000000;
+            border-bottom: 1px solid #1a1a1a;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .price-ticker {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+        
+        .price-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .price-value {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .price-change {
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        .price-up {
+            background: #10b981;
+            color: #000;
+        }
+        
+        .price-down {
+            background: #ef4444;
+            color: #fff;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 350px;
+            background: #0a0a0a;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #1a1a1a;
+        }
+        
+        .metric-card {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .table-container {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #000000;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: #888888;
+            text-transform: uppercase;
+            border-bottom: 1px solid #1a1a1a;
+        }
+        
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #1a1a1a;
+            font-size: 14px;
+        }
+        
+        tr:hover {
+            background: #050505;
+        }
+        
+        .badge {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .badge-in {
+            background: #10b98120;
+            color: #10b981;
+        }
+        
+        .badge-out {
+            background: #ef444420;
+            color: #ef4444;
+        }
+        
+        .coming-soon-badge {
+            background: #f59e0b20;
+            color: #f59e0b;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .page-section {
+            display: none;
+        }
+        
+        .page-section.active {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .price-ticker {
+                flex-direction: column;
+                gap: 8px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+        <div style="padding: 24px;">
+            <img src="logo.png" alt="Kryptosphère NEOMA" style="height: 40px; width: auto;">
+        </div>
+        
+        <nav style="margin-top: 20px;">
+            <div class="nav-item active" onclick="showPage('dashboard-spot')">
+                <i data-lucide="bar-chart-3" style="width: 20px; height: 20px;"></i>
+                <span>Dashboard Spot</span>
+            </div>
+            
+            <div class="nav-item" onclick="showPage('dashboard-defi')">
+                <i data-lucide="link" style="width: 20px; height: 20px;"></i>
+                <span>Dashboard DeFi</span>
+                <span class="coming-soon-badge">SOON</span>
+            </div>
+            
+            <div class="nav-item" onclick="showPage('ips-strategy')">
+                <i data-lucide="file-text" style="width: 20px; height: 20px;"></i>
+                <span>IPS & Stratégie</span>
+            </div>
+            
+            <div class="nav-item" onclick="showPage('research')">
+                <i data-lucide="pen-tool" style="width: 20px; height: 20px;"></i>
+                <span>Research</span>
+            </div>
+        </nav>
+        
+        <div style="position: absolute; bottom: 24px; left: 20px; right: 20px;">
+            <div style="font-size: 11px; color: #444444; margin-bottom: 8px;">EXTERNAL LINKS</div>
+            <a href="https://www.instagram.com/kryptosphereneoma/" target="_blank" style="display: flex; align-items: center; gap: 8px; color: #888888; text-decoration: none; margin-bottom: 8px; font-size: 13px;">
+                <i data-lucide="instagram" style="width: 16px; height: 16px;"></i>
+                <span>Instagram</span>
+            </a>
+            <a href="https://kryptosphere.org/" target="_blank" style="display: flex; align-items: center; gap: 8px; color: #888888; text-decoration: none; font-size: 13px;">
+                <i data-lucide="globe" style="width: 16px; height: 16px;"></i>
+                <span>Kryptosphère National</span>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Mobile Menu Toggle -->
+    <button id="mobile-menu-btn" onclick="toggleMobileMenu()" style="position: fixed; top: 16px; left: 16px; z-index: 1001; background: #0a0a0a; border: 1px solid #1a1a1a; padding: 8px; border-radius: 6px; display: none;">
+        <i data-lucide="menu" style="width: 24px; height: 24px; color: #ffffff;"></i>
+    </button>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content" id="main-content">
+        
+        <!-- TOP BAR -->
+        <div class="top-bar">
+            <div class="price-ticker" id="price-ticker">
+                <div class="price-item">
+                    <span style="color: #888888; font-size: 13px;">BTC</span>
+                    <span class="price-value" id="btc-price">--</span>
+                    <span class="price-change" id="btc-change">--</span>
+                </div>
+                <div class="price-item">
+                    <span style="color: #888888; font-size: 13px;">ETH</span>
+                    <span class="price-value" id="eth-price">--</span>
+                    <span class="price-change" id="eth-change">--</span>
+                </div>
+            </div>
+            <div style="font-size: 12px; color: #444444;">
+                Last update: <span id="last-update">--</span>
+            </div>
+        </div>
+
+        <!-- PAGE: DASHBOARD SPOT -->
+        <div id="page-dashboard-spot" class="page-section active" style="padding: 32px;">
+            
+            <h1 style="font-size: 28px; font-weight: 700; margin-bottom: 24px;">Portfolio Spot</h1>
+            
+            <!-- Charts Row -->
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px; margin-bottom: 24px;">
+                
+                <!-- Donut Chart -->
+                <div class="chart-container">
+                    <h3 style="font-size: 14px; font-weight: 600; color: #888888; margin-bottom: 16px;">COMPOSITION</h3>
+                    <div style="position: relative; height: 280px;">
+                        <canvas id="compositionChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Equity Curve -->
+                <div class="chart-container">
+                    <h3 style="font-size: 14px; font-weight: 600; color: #888888; margin-bottom: 16px;">ÉVOLUTION (30 JOURS)</h3>
+                    <div style="position: relative; height: 280px;">
+                        <canvas id="equityChart"></canvas>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <!-- Metrics Row -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+                <div class="metric-card">
+                    <div style="font-size: 11px; color: #888888; margin-bottom: 8px;">TOTAL VALUE</div>
+                    <div style="font-size: 24px; font-weight: 700; color: #3b82f6;">$561.43</div>
+                    <div style="font-size: 12px; color: #10b981; margin-top: 4px;">+12.3%</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div style="font-size: 11px; color: #888888; margin-bottom: 8px;">BTC HOLDINGS</div>
+                    <div style="font-size: 20px; font-weight: 700;">0.0021</div>
+                    <div style="font-size: 12px; color: #888888; margin-top: 4px;">Bitcoin</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div style="font-size: 11px; color: #888888; margin-bottom: 8px;">ETH HOLDINGS</div>
+                    <div style="font-size: 20px; font-weight: 700;">0.0954</div>
+                    <div style="font-size: 12px; color: #888888; margin-top: 4px;">Ethereum</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div style="font-size: 11px; color: #888888; margin-bottom: 8px;">STABLES</div>
+                    <div style="font-size: 20px; font-weight: 700;">$125.00</div>
+                    <div style="font-size: 12px; color: #888888; margin-top: 4px;">USDC</div>
+                </div>
+            </div>
+            
+            <!-- Cashflow Table -->
+            <div class="table-container">
+                <h3 style="font-size: 14px; font-weight: 600; padding: 20px; background: #000000; border-bottom: 1px solid #1a1a1a;">HISTORIQUE DES CASHFLOWS</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>DATE</th>
+                            <th>TYPE</th>
+                            <th>MONTANT USD</th>
+                            <th>ASSET</th>
+                            <th>NOTE</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cashflow-tbody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+            
+        </div>
+
+        <!-- PAGE: DASHBOARD DEFI -->
+        <div id="page-dashboard-defi" class="page-section" style="padding: 32px;">
+            <div style="max-width: 600px; margin: 100px auto; text-align: center;">
+                <div style="width: 120px; height: 120px; background: #0a0a0a; border: 2px solid #f59e0b; border-radius: 50%; margin: 0 auto 24px; display: flex; align-items: center; justify-content: center;">
+                    <i data-lucide="link" style="width: 48px; height: 48px; color: #f59e0b;"></i>
+                </div>
+                <h2 style="font-size: 32px; font-weight: 700; margin-bottom: 16px;">Dashboard DeFi</h2>
+                <div style="display: inline-block; background: #f59e0b20; color: #f59e0b; padding: 8px 20px; border-radius: 6px; font-weight: 600; margin-bottom: 24px;">
+                    COMING SOON
+                </div>
+                <p style="color: #888888; line-height: 1.6; max-width: 500px; margin: 0 auto;">
+                    Le tracking DeFi est en cours de déploiement. Cette section permettra de suivre en temps réel 
+                    nos positions delta-neutral sur Hyperliquid, Hyperlend, Ventual et PRJX.
+                </p>
+            </div>
+        </div>
+
+        <!-- PAGE: IPS & STRATEGY -->
+        <div id="page-ips-strategy" class="page-section" style="padding: 32px;">
+            
+            <h1 style="font-size: 28px; font-weight: 700; margin-bottom: 8px;">IPS & Stratégie</h1>
+            <p style="color: #888888; margin-bottom: 32px;">Investment Policy Statement & Stratégie de Gestion 2026</p>
+            
+            <!-- Stratégie Section -->
+            <div style="background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 8px; padding: 32px; margin-bottom: 24px;">
+                <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 16px; color: #3b82f6;">Stratégie de Gestion 2026</h2>
+                <p style="font-size: 16px; font-weight: 600; color: #888888; margin-bottom: 24px;">0% Risque Directionnel · 100% Génération de PnL</p>
+                
+                <div style="margin-bottom: 24px;">
+                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">Allocation Stratégique</h3>
+                    <p style="color: #cccccc; line-height: 1.6; margin-bottom: 16px;">
+                        Notre approche pour 2026 repose sur une allocation disciplinée et équilibrée, éliminant tout risque directionnel 
+                        inutile tout en maximisant la génération de profits par des stratégies éprouvées.
+                    </p>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 20px;">
+                        <div style="background: #000000; border: 1px solid #3b82f6; border-radius: 6px; padding: 20px;">
+                            <div style="font-size: 12px; color: #3b82f6; font-weight: 600; margin-bottom: 8px;">50% SPOT</div>
+                            <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">Exposition Long-Terme</h4>
+                            <ul style="list-style: none; padding: 0; color: #cccccc; font-size: 14px; line-height: 1.8;">
+                                <li style="margin-bottom: 8px;">• <strong style="color: #f59e0b;">BTC (20%)</strong> - Store of value, entrée ~$95k</li>
+                                <li style="margin-bottom: 8px;">• <strong style="color: #a855f7;">ETH (10%)</strong> - Infrastructure DeFi, entrée ~$3.1k</li>
+                                <li style="margin-bottom: 8px;">• <strong style="color: #888888;">Stablecoins (20%)</strong> - Réserve DCA & opportunités</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="background: #000000; border: 1px solid #10b981; border-radius: 6px; padding: 20px;">
+                            <div style="font-size: 12px; color: #10b981; font-weight: 600; margin-bottom: 8px;">50% DEFI STABLE</div>
+                            <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">Stratégie Delta-Neutral</h4>
+                            <ul style="list-style: none; padding: 0; color: #cccccc; font-size: 14px; line-height: 1.8;">
+                                <li style="margin-bottom: 8px;">• <strong>Hyperlend (HEVM)</strong> - Borrowing delta-neutral</li>
+                                <li style="margin-bottom: 8px;">• <strong>Ventual</strong> - Staking sécurisé</li>
+                                <li style="margin-bottom: 8px;">• <strong>PRJX</strong> - Liquidity Providing</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background: #ef444410; border: 1px solid #ef4444; border-radius: 6px; padding: 16px; margin-top: 20px;">
+                    <div style="display: flex; align-items: start; gap: 12px;">
+                        <i data-lucide="alert-triangle" style="width: 20px; height: 20px; color: #ef4444; flex-shrink: 0; margin-top: 2px;"></i>
+                        <div>
+                            <div style="font-weight: 600; margin-bottom: 4px; color: #ef4444;">Gestion du Risque</div>
+                            <div style="font-size: 13px; color: #cccccc;">
+                                Protocoles audités uniquement. Stop-loss à -25% sur positions individuelles. 
+                                Rebalancing hebdomadaire. Traçabilité complète de toutes les opérations DeFi.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- IPS Section -->
+            <div style="background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 8px; padding: 32px;">
+                <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 24px; color: #3b82f6;">Investment Policy Statement</h2>
+                
+                <!-- Section 1 -->
+                <div style="margin-bottom: 32px;">
+                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #ffffff;">1. Scope and Purpose</h3>
+                    <div style="color: #cccccc; line-height: 1.7; font-size: 14px;">
+                        <p style="margin-bottom: 12px;">
+                            Cet Investment Policy Statement établit un cadre discipliné et stratégique pour la gestion des actifs 
+                            des Investisseurs. L'objectif financier global est de générer des rendements à long terme pour développer 
+                            le portfolio de l'Investment Entity de manière pérenne.
+                        </p>
+                        <p style="margin-bottom: 12px;">
+                            Le programme d'investissement est spécifiquement destiné à permettre à l'Investment Entity de se doter 
+                            d'un portfolio à des fins éducatives afin de former et d'autonomiser ses membres avec les outils de la 
+                            Finance Décentralisée (DeFi).
+                        </p>
+                        <p style="color: #888888; font-size: 13px;">
+                            <strong>Standard de Soin :</strong> Les Investment Supervisors agissent en tant que Fiduciaires vis-à-vis 
+                            des Investisseurs, reconnaissant que tous les conseils et décisions rendus doivent refléter avant tout 
+                            les meilleurs intérêts des Investisseurs.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Section 2 -->
+                <div style="margin-bottom: 32px;">
+                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #ffffff;">2. Gouvernance</h3>
+                    <div style="color: #cccccc; line-height: 1.7; font-size: 14px;">
+                        <p style="margin-bottom: 12px;">
+                            Les Investment Supervisors doivent réviser l'IPS avec l'Investisseur au moins annuellement et suggérer 
+                            des révisions chaque fois que les circonstances de l'Investisseur, ses objectifs financiers ou les 
+                            conditions de marché pertinentes changent matériellement.
+                        </p>
+                        <p style="margin-bottom: 12px;">
+                            Des rapports complets de performance et de risque doivent être fournis mensuellement ou trimestriellement. 
+                            Le format du rapport est libre (Excel, site web ad-hoc, etc.).
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Section 3 -->
+                <div style="margin-bottom: 32px;">
+                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #ffffff;">3. Investment, Return, and Risk Objectives</h3>
+                    <div style="color: #cccccc; line-height: 1.7; font-size: 14px;">
+                        <p style="margin-bottom: 12px;">
+                            <strong>Objectif :</strong> Croissance modérée à travers un investissement à long terme.
+                        </p>
+                        <p style="margin-bottom: 12px;">
+                            <strong>Rendement Requis :</strong> Un rendement réel (après inflation) de 8% est nécessaire pour 
+                            satisfaire les obligations futures et maintenir les objectifs à long terme désirés.
+                        </p>
+                        <p style="margin-bottom: 12px;">
+                            <strong>Tolérance au Risque :</strong> Philosophie modérément tolérante au risque. L'Investisseur est 
+                            prêt à tolérer la volatilité à court terme. Cependant, une perte absolue de plus de 20% de la valeur 
+                            totale du portfolio sur toute période de 12 mois est considérée comme intolérable.
+                        </p>
+                        <div style="background: #f59e0b10; border-left: 3px solid #f59e0b; padding: 12px; margin-top: 16px;">
+                            <p style="font-size: 13px; color: #cccccc;">
+                                <strong style="color: #f59e0b;">Leverage :</strong> Le portfolio peut utiliser l'effet de levier 
+                                sous les strictes conditions que les Investisseurs soient notifiés à l'avance, que d'autres options 
+                                ne soient pas possibles, et que des mesures de gestion du risque appropriées soient prises.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Section 4 -->
+                <div style="margin-bottom: 32px;">
+                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #ffffff;">4. Risk Management</h3>
+                    <div style="color: #cccccc; line-height: 1.7; font-size: 14px;">
+                        <p style="margin-bottom: 12px;">
+                            Les métriques de risque suivantes doivent être rapportées trimestriellement :
+                        </p>
+                        <ul style="list-style: none; padding-left: 20px; margin-bottom: 12px;">
+                            <li style="margin-bottom: 8px;">• <strong>Écart-Type :</strong> Volatilité annualisée relative au benchmark</li>
+                            <li style="margin-bottom: 8px;">• <strong>Tracking Error :</strong> Différence entre rendements du portfolio et benchmark</li>
+                            <li style="margin-bottom: 8px;">• <strong>Maximum Drawdown :</strong> Plus grande baisse pic-à-creux sur la période</li>
+                        </ul>
+                        <p style="margin-bottom: 12px;">
+                            <strong>Rebalancing :</strong> Le portfolio doit être rééquilibré lorsqu'une classe d'actifs dévie de 
+                            plus de 20% de son allocation cible, ou au moins semestriellement.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Signatures -->
+                <div style="border-top: 1px solid #1a1a1a; padding-top: 24px; margin-top: 32px;">
+                    <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 16px; color: #888888;">SIGNATURES</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px;">
+                        <div>
+                            <div style="font-size: 12px; color: #888888; margin-bottom: 8px;">Investment Supervisor - Président</div>
+                            <div style="font-size: 16px; font-weight: 600;">Hugo Deitsch</div>
+                            <div style="font-size: 12px; color: #444444; margin-top: 4px;">Date: 01/02/2026</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #888888; margin-bottom: 8px;">Investment Supervisor - Vice-Président</div>
+                            <div style="font-size: 16px; font-weight: 600;">Arthur Contamine</div>
+                            <div style="font-size: 12px; color: #444444; margin-top: 4px;">Date: 01/02/2026</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+        <!-- PAGE: RESEARCH -->
+        <div id="page-research" class="page-section" style="padding: 32px;">
+            
+            <h1 style="font-size: 28px; font-weight: 700; margin-bottom: 8px;">Research & Analysis</h1>
+            <p style="color: #888888; margin-bottom: 32px;">Nos analyses et insights sur le marché crypto</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px;">
+                
+                <!-- Article Placeholder 1 -->
+                <div style="background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 8px; padding: 24px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.borderColor='#3b82f6'" onmouseout="this.style.borderColor='#1a1a1a'">
+                    <div style="display: flex; justify-content: between; align-items: start; margin-bottom: 16px;">
+                        <span style="font-size: 10px; font-weight: 600; background: #3b82f620; color: #3b82f6; padding: 4px 10px; border-radius: 4px;">ANALYSIS</span>
+                        <span style="font-size: 11px; color: #444444; margin-left: auto;">Coming Soon</span>
+                    </div>
+                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 12px;">Hyperliquid Deep Dive</h3>
+                    <p style="color: #888888; font-size: 13px; line-height: 1.6;">
+                        Analyse technique approfondie de l'architecture Hyperliquid, mécanismes de liquidité et tokenomics HYPE.
+                    </p>
+                </div>
+                
+                <!-- Article Placeholder 2 -->
+                <div style="background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 8px; padding: 24px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.borderColor='#10b981'" onmouseout="this.style.borderColor='#1a1a1a'">
+                    <div style="display: flex; justify-content: between; align-items: start; margin-bottom: 16px;">
+                        <span style="font-size: 10px; font-weight: 600; background: #10b98120; color: #10b981; padding: 4px 10px; border-radius: 4px;">STRATEGY</span>
+                        <span style="font-size: 11px; color: #444444; margin-left: auto;">Coming Soon</span>
+                    </div>
+                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 12px;">Delta Neutral : Guide Pratique</h3>
+                    <p style="color: #888888; font-size: 13px; line-height: 1.6;">
+                        Construction et maintenance de positions delta-neutral en DeFi. Protocoles, calculs et gestion du risque.
+                    </p>
+                </div>
+                
+                <!-- Article Placeholder 3 -->
+                <div style="background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 8px; padding: 24px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.borderColor='#f59e0b'" onmouseout="this.style.borderColor='#1a1a1a'">
+                    <div style="display: flex; justify-content: between; align-items: start; margin-bottom: 16px;">
+                        <span style="font-size: 10px; font-weight: 600; background: #f59e0b20; color: #f59e0b; padding: 4px 10px; border-radius: 4px;">MARKET</span>
+                        <span style="font-size: 11px; color: #444444; margin-left: auto;">Coming Soon</span>
+                    </div>
+                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 12px;">BTC Q1 2026 : Analyse Technique</h3>
+                    <p style="color: #888888; font-size: 13px; line-height: 1.6;">
+                        Analyse technique du Bitcoin. Zones clés, indicateurs on-chain et scénarios pour le premier trimestre.
+                    </p>
+                </div>
+                
+            </div>
+            
+        </div>
+
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        // ==========================================
+        // NAVIGATION
+        // ==========================================
+        
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page-section').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show selected page
+            document.getElementById('page-' + pageId).classList.add('active');
+            
+            // Update nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // Close mobile menu
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('mobile-open');
+            }
+        }
+        
+        function toggleMobileMenu() {
+            document.getElementById('sidebar').classList.toggle('mobile-open');
+        }
+        
+        // ==========================================
+        // FETCH COINGECKO PRICES
+        // ==========================================
+        
+        async function fetchPrices() {
+            try {
+                const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true');
+                const data = await response.json();
+                
+                // BTC
+                const btcPrice = data.bitcoin.usd;
+                const btcChange = data.bitcoin.usd_24h_change;
+                document.getElementById('btc-price').textContent = '$' + btcPrice.toLocaleString();
+                const btcChangeEl = document.getElementById('btc-change');
+                btcChangeEl.textContent = (btcChange >= 0 ? '+' : '') + btcChange.toFixed(2) + '%';
+                btcChangeEl.className = 'price-change ' + (btcChange >= 0 ? 'price-up' : 'price-down');
+                
+                // ETH
+                const ethPrice = data.ethereum.usd;
+                const ethChange = data.ethereum.usd_24h_change;
+                document.getElementById('eth-price').textContent = '$' + ethPrice.toLocaleString();
+                const ethChangeEl = document.getElementById('eth-change');
+                ethChangeEl.textContent = (ethChange >= 0 ? '+' : '') + ethChange.toFixed(2) + '%';
+                ethChangeEl.className = 'price-change ' + (ethChange >= 0 ? 'price-up' : 'price-down');
+                
+                // Update timestamp
+                const now = new Date();
+                document.getElementById('last-update').textContent = now.toLocaleTimeString('fr-FR');
+                
+            } catch (error) {
+                console.error('Error fetching prices:', error);
+            }
+        }
+        
+        // ==========================================
+        // GENERATE REALISTIC EQUITY CURVE
+        // ==========================================
+        
+        function generateEquityCurve() {
+            const days = 30;
+            const data = [];
+            let value = 500; // Starting value
+            
+            for (let i = 0; i < days; i++) {
+                const date = new Date();
+                date.setDate(date.getDate() - (days - i));
+                
+                // Simulate volatility with some trends
+                let change;
+                if (i < 20) {
+                    // Growth phase
+                    change = (Math.random() - 0.35) * 15;
+                } else {
+                    // Recent decline (market downturn)
+                    change = (Math.random() - 0.65) * 20;
+                }
+                
+                value = Math.max(value + change, 450); // Don't go below 450
+                
+                data.push({
+                    date: date.toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' }),
+                    value: parseFloat(value.toFixed(2))
+                });
+            }
+            
+            return data;
+        }
+        
+        // ==========================================
+        // CHARTS
+        // ==========================================
+        
+        function createCharts() {
+            // Composition Chart (Donut)
+            const compCtx = document.getElementById('compositionChart').getContext('2d');
+            new Chart(compCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['BTC', 'ETH', 'Stablecoins'],
+                    datasets: [{
+                        data: [37, 40, 23],
+                        backgroundColor: ['#f59e0b', '#a855f7', '#6b7280'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#888888',
+                                padding: 16,
+                                font: { size: 12 }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Equity Curve
+            const equityData = generateEquityCurve();
+            const equityCtx = document.getElementById('equityChart').getContext('2d');
+            
+            new Chart(equityCtx, {
+                type: 'line',
+                data: {
+                    labels: equityData.map(d => d.date),
+                    datasets: [{
+                        data: equityData.map(d => d.value),
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.05)',
+                        fill: true,
+                        tension: 0.3,
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        pointHoverRadius: 4,
+                        pointHoverBackgroundColor: '#3b82f6'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: '#1a1a1a',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#888888',
+                                font: { size: 11 },
+                                callback: (value) => '$' + value
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#888888',
+                                font: { size: 10 },
+                                maxRotation: 0
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // ==========================================
+        // CASHFLOW TABLE DATA
+        // ==========================================
+        
+        const cashflows = [
+            { date: '2025-01-01', type: 'IN', amount: 500, asset: 'USDC', note: 'Dépôt initial' },
+            { date: '2025-01-15', type: 'IN', amount: 20, asset: 'USDC', note: 'Farming DeFi' },
+            { date: '2025-01-20', type: 'IN', amount: 15, asset: 'BTC', note: 'DCA BTC' },
+            { date: '2025-01-28', type: 'OUT', amount: -10, asset: 'ETH', note: 'Rebalancing' },
+            { date: '2025-02-01', type: 'IN', amount: 36, asset: 'Mixed', note: 'Performance composite' }
+        ];
+        
+        function populateCashflowTable() {
+            const tbody = document.getElementById('cashflow-tbody');
+            
+            cashflows.forEach(flow => {
+                const row = document.createElement('tr');
+                const badgeClass = flow.type === 'IN' ? 'badge-in' : 'badge-out';
+                const amountColor = flow.amount >= 0 ? '#10b981' : '#ef4444';
+                const amountSign = flow.amount >= 0 ? '+' : '';
+                
+                row.innerHTML = `
+                    <td style="color: #cccccc;">${flow.date}</td>
+                    <td><span class="badge ${badgeClass}">${flow.type}</span></td>
+                    <td style="text-align: right; font-weight: 600; color: ${amountColor};">${amountSign}$${Math.abs(flow.amount).toFixed(2)}</td>
+                    <td style="color: #888888;">${flow.asset}</td>
+                    <td style="color: #666666; font-size: 13px;">${flow.note}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+        
+        // ==========================================
+        // RESPONSIVE
+        // ==========================================
+        
+        function handleResize() {
+            const mobileBtn = document.getElementById('mobile-menu-btn');
+            if (window.innerWidth <= 768) {
+                mobileBtn.style.display = 'block';
+            } else {
+                mobileBtn.style.display = 'none';
+                document.getElementById('sidebar').classList.remove('mobile-open');
+            }
+        }
+        
+        // ==========================================
+        // INITIALIZATION
+        // ==========================================
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Lucide icons
+            lucide.createIcons();
+            
+            // Fetch prices
+            fetchPrices();
+            setInterval(fetchPrices, 60000); // Update every minute
+            
+            // Create charts
+            createCharts();
+            
+            // Populate table
+            populateCashflowTable();
+            
+            // Handle responsive
+            handleResize();
+            window.addEventListener('resize', handleResize);
+        });
+    </script>
+
+</body>
+</html>
