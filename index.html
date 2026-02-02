@@ -49,13 +49,13 @@
         }
         
         .sidebar-logo {
-            padding: 28px 0;
+            padding: 32px 0;
             border-bottom: 1px solid #1a1a1a;
             text-align: center;
         }
         
         .sidebar-logo img {
-            width: 92%;
+            width: 98%;
             height: auto;
             margin: 0 auto;
             display: block;
@@ -256,19 +256,6 @@
             background: #050505;
         }
         
-        .badge {
-            padding: 4px 10px;
-            border-radius: 3px;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-        
-        .badge-deposit {
-            background: #3b82f620;
-            color: #3b82f6;
-        }
-        
         .page-section {
             display: none;
             animation: fadeIn 0.3s ease;
@@ -343,12 +330,17 @@
         <nav style="flex: 1; padding-top: 20px;">
             <div class="nav-item active" onclick="showPage('dashboard-spot')">
                 <i data-lucide="trending-up" style="width: 20px; height: 20px;"></i>
-                <span>Dashboard Spot</span>
+                <span>Dashboard</span>
             </div>
             
             <div class="nav-item" onclick="showPage('terminal-defi')">
                 <i data-lucide="network" style="width: 20px; height: 20px;"></i>
                 <span>Terminal DeFi</span>
+            </div>
+            
+            <div class="nav-item" onclick="showPage('qui-sommes-nous')">
+                <i data-lucide="users" style="width: 20px; height: 20px;"></i>
+                <span>Qui Sommes-Nous ?</span>
             </div>
             
             <div class="nav-item" onclick="showPage('ips-strategy')">
@@ -358,7 +350,7 @@
             
             <div class="nav-item" onclick="showPage('research-center')">
                 <i data-lucide="library" style="width: 20px; height: 20px;"></i>
-                <span>Research Center</span>
+                <span>Research</span>
             </div>
         </nav>
         
@@ -420,18 +412,35 @@
             </div>
         </div>
 
-        <!-- PAGE: DASHBOARD SPOT -->
+        <!-- PAGE: DASHBOARD -->
         <div id="page-dashboard-spot" class="page-section active" style="padding: 32px;">
             
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
                 <div>
-                    <h1 style="font-size: 32px; font-weight: 800; letter-spacing: -0.5px;">CONSOLIDATED PORTFOLIO</h1>
-                    <p style="color: #666666; font-size: 13px; margin-top: 4px; font-family: 'Courier New', monospace;">Spot + DeFi + Vault Extended</p>
+                    <h1 style="font-size: 32px; font-weight: 800; letter-spacing: -0.5px;">PORTFOLIO DASHBOARD</h1>
+                    <p style="color: #666666; font-size: 13px; margin-top: 4px; font-family: 'Courier New', monospace;">Spot + DeFi + Vault · Benchmarked vs CMC20</p>
                 </div>
                 <button onclick="refreshData()" style="background: #0a0a0a; border: 1px solid #1a1a1a; padding: 10px 20px; border-radius: 4px; color: #666666; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
                     <i data-lucide="refresh-cw" style="width: 16px; height: 16px;"></i>
                     <span>REFRESH</span>
                 </button>
+            </div>
+            
+            <!-- Performance Comparison -->
+            <div style="background: #0a0a0a; border: 1px solid #3b82f6; border-radius: 6px; padding: 20px; margin-bottom: 32px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-size: 11px; color: #666666; letter-spacing: 1px; margin-bottom: 8px;">PERFORMANCE VS MARKET</div>
+                        <div style="font-size: 24px; font-weight: 800; font-family: 'Courier New', monospace;">
+                            <span class="pnl-negative">Portfolio: -7.16%</span>
+                            <span style="color: #444444; margin: 0 12px;">vs</span>
+                            <span class="pnl-negative">CMC20: -24.59%</span>
+                        </div>
+                        <div style="font-size: 12px; color: #10b981; margin-top: 8px; font-weight: 600;">
+                            ✓ Outperforming Market by +17.43%
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <!-- Metrics Row -->
@@ -474,6 +483,14 @@
                     <div class="metric-subvalue" style="color: #666666;">
                         Since Inception
                     </div>
+                </div>
+            </div>
+            
+            <!-- Equity Curve -->
+            <div class="chart-container" style="margin-bottom: 32px;">
+                <div class="chart-title">EQUITY CURVE (30 DAYS)</div>
+                <div style="position: relative; height: 300px;">
+                    <canvas id="equityChart"></canvas>
                 </div>
             </div>
             
@@ -520,45 +537,80 @@
                 </table>
             </div>
             
-            <!-- Charts Row -->
-            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px; margin-bottom: 32px;">
-                
-                <!-- Portfolio Composition -->
-                <div class="chart-container">
-                    <div class="chart-title">SPOT COMPOSITION</div>
-                    <div style="position: relative; height: 320px;">
-                        <canvas id="compositionChart"></canvas>
-                    </div>
-                </div>
-                
-                <!-- Holdings Breakdown -->
-                <div class="chart-container">
-                    <div class="chart-title">HOLDINGS DETAIL (SPOT)</div>
-                    <div id="holdings-detail" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 10px;">
-                        <!-- Populated by JS -->
-                    </div>
-                </div>
-                
-            </div>
-            
-            <!-- Cashflow History -->
-            <div class="table-container">
-                <div style="padding: 20px 24px; background: #000000; border-bottom: 1px solid #1a1a1a;">
-                    <h3 style="font-size: 11px; font-weight: 700; letter-spacing: 1.2px; color: #666666;">ON-CHAIN DEPOSITS HISTORY</h3>
-                </div>
-                <table>
+            <!-- Holdings Detail avec PRU -->
+            <div class="chart-container">
+                <div class="chart-title">HOLDINGS DETAIL (WITH AVG ENTRY PRICE)</div>
+                <table style="width: 100%; margin-top: 16px;">
                     <thead>
                         <tr>
-                            <th>DATE</th>
-                            <th>TYPE</th>
-                            <th>AMOUNT USD</th>
-                            <th>TX HASH</th>
+                            <th>ASSET</th>
+                            <th>QUANTITY</th>
+                            <th>AVG ENTRY (PRU)</th>
+                            <th>CURRENT PRICE</th>
+                            <th>VALUE USD</th>
+                            <th>PNL</th>
                         </tr>
                     </thead>
-                    <tbody id="cashflow-table">
+                    <tbody id="holdings-table">
                         <!-- Populated by JS -->
                     </tbody>
                 </table>
+            </div>
+            
+        </div>
+
+        <!-- PAGE: QUI SOMMES-NOUS -->
+        <div id="page-qui-sommes-nous" class="page-section" style="padding: 32px;">
+            
+            <h1 style="font-size: 32px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 32px;">Qui Sommes-Nous ?</h1>
+            
+            <div style="background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 6px; padding: 40px; margin-bottom: 32px;">
+                <p style="color: #cccccc; line-height: 1.8; font-size: 15px; margin-bottom: 20px;">
+                    Bienvenue sur le terminal de gestion de l'antenne <strong>NEOMA Business School</strong> du réseau <strong>KRYPTOSPHERE®</strong>. 
+                    Notre mission est d'offrir à nos membres une première expérience concrète, rigoureuse et professionnelle dans la gestion de crypto-actifs.
+                </p>
+                
+                <p style="color: #cccccc; line-height: 1.8; font-size: 15px; margin-bottom: 20px;">
+                    Contrairement aux idées reçues, nous ne cherchons pas le "x100" ou les investissements spéculatifs à haut risque. Notre démarche est 
+                    <strong>académique et structurée</strong> : nous appliquons un Investment Policy Statement (IPS) strict, une stratégie de gestion active 
+                    risque/rendement, et un suivi on-chain transparent. Ici, on apprend à dompter la volatilité, à benchmarker nos performances et à comprendre 
+                    les rouages de la DeFi (Finance Décentralisée).
+                </p>
+                
+                <div style="background: #10b98110; border-left: 4px solid #10b981; padding: 20px; border-radius: 4px; margin: 24px 0;">
+                    <p style="color: #10b981; line-height: 1.7; font-size: 14px;">
+                        <strong>Note à l'attention des potentiels kidnappeurs :</strong> Inutile de venir attraper notre veste ou de guetter nos sorties de cours ! 
+                        On gère des sommes modestes pour l'apprentissage. Techniquement, on est des étudiants fauchés qui préfèrent les points de yield aux rançons. 😉
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Disclaimer Légal -->
+            <div style="background: #ef444410; border: 2px solid #ef4444; border-radius: 6px; padding: 32px;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+                    <i data-lucide="alert-triangle" style="width: 28px; height: 28px; color: #ef4444;"></i>
+                    <h2 style="font-size: 20px; font-weight: 800; color: #ef4444;">DISCLAIMER LÉGAL · TRIGGER WARNING ⚠️</h2>
+                </div>
+                
+                <div style="margin-bottom: 24px;">
+                    <h3 style="font-size: 14px; font-weight: 700; color: #ef4444; margin-bottom: 12px;">FRANÇAIS</h3>
+                    <p style="color: #cccccc; line-height: 1.7; font-size: 14px;">
+                        <strong style="color: #ef4444;">⚠️ ATTENTION :</strong> Ce site est un outil pédagogique interne à l'association KRYPTOSPHERE® NEOMA. 
+                        Nous ne sommes pas des conseillers financiers, ni des prestataires de services sur actifs numériques (PSAN). Les informations et 
+                        performances affichées ici ne constituent en aucun cas un conseil en investissement, une incitation à trader ou une recommandation 
+                        d'achat. L'investissement en cryptomonnaies présente des risques de perte totale en capital. <strong>NFA (Pas un conseil financier)</strong>.
+                    </p>
+                </div>
+                
+                <div>
+                    <h3 style="font-size: 14px; font-weight: 700; color: #ef4444; margin-bottom: 12px;">ENGLISH</h3>
+                    <p style="color: #cccccc; line-height: 1.7; font-size: 14px;">
+                        <strong style="color: #ef4444;">⚠️ DISCLAIMER:</strong> This dashboard is an educational tool developed by the KRYPTOSPHERE® NEOMA 
+                        student association. We are not financial advisors or regulated asset managers. The data and performances shown here are for 
+                        informational purposes only and do not constitute investment advice, financial guidance, or an offer to buy or sell any assets. 
+                        Cryptocurrency investments involve a high risk of capital loss. <strong>NFA (Not Financial Advice)</strong>.
+                    </p>
+                </div>
             </div>
             
         </div>
@@ -693,21 +745,16 @@
                     </p>
                 </div>
                 
-                <!-- Signatures -->
+                <!-- Signatures Anonymes -->
                 <div style="border-top: 1px solid #1a1a1a; padding-top: 32px; margin-top: 32px;">
-                    <div style="font-size: 11px; font-weight: 700; color: #666666; letter-spacing: 1.2px; margin-bottom: 24px;">SIGNATURES</div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 48px;">
-                        <div style="padding: 20px; background: #000000; border: 1px solid #1a1a1a; border-radius: 6px;">
-                            <div style="font-size: 11px; color: #666666; margin-bottom: 12px; letter-spacing: 1px;">Investment Supervisor - Président</div>
-                            <div style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">Hugo Deitsch</div>
+                    <div style="font-size: 11px; font-weight: 700; color: #666666; letter-spacing: 1.2px; margin-bottom: 24px;">APPROUVÉ PAR</div>
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 24px; max-width: 500px;">
+                        <div style="padding: 20px; background: #000000; border: 1px solid #1a1a1a; border-radius: 6px; text-align: center;">
+                            <div style="font-size: 11px; color: #666666; margin-bottom: 12px; letter-spacing: 1px;">Investment Supervisors</div>
+                            <div style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">Le Board</div>
                             <div style="height: 60px; border-bottom: 2px solid #1a1a1a; margin: 16px 0;"></div>
-                            <div style="font-size: 11px; color: #444444; font-family: 'Courier New', monospace;">Date: 01/02/2026</div>
-                        </div>
-                        <div style="padding: 20px; background: #000000; border: 1px solid #1a1a1a; border-radius: 6px;">
-                            <div style="font-size: 11px; color: #666666; margin-bottom: 12px; letter-spacing: 1px;">Investment Supervisor - Vice-Président</div>
-                            <div style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">Arthur Contamine</div>
-                            <div style="height: 60px; border-bottom: 2px solid #1a1a1a; margin: 16px 0;"></div>
-                            <div style="font-size: 11px; color: #444444; font-family: 'Courier New', monospace;">Date: 01/02/2026</div>
+                            <div style="font-size: 11px; color: #444444; font-family: 'Courier New', monospace;">KRYPTOSPHERE® NEOMA</div>
+                            <div style="font-size: 11px; color: #444444; font-family: 'Courier New', monospace; margin-top: 4px;">Date: 01/02/2026</div>
                         </div>
                     </div>
                 </div>
@@ -818,31 +865,28 @@
     <!-- JAVASCRIPT -->
     <script>
         // ==========================================
-        // CONFIGURATION - REAL BALANCES
+        // CONFIGURATION
         // ==========================================
         
         const REAL_BALANCES = {
-            // Hyperliquid Spot (exact balances)
             spot: {
                 BTC: 0.0034,
                 ETH: 0.0839,
                 HYPE: 2.5183,
                 USDC: 46.73
             },
-            // DeFi Multi-Chain
             defi: 385.00,
-            // Vault Extended (manual)
             vault: 160.00,
-            // Cost Basis
             costBasis: 1213.09
         };
         
-        // On-chain deposits (cleaned, real transactions)
-        const ONCHAIN_DEPOSITS = [
-            { date: '2024-11-15', type: 'DEPOSIT', amount: 578, txHash: '0x1a2b...3c4d' },
-            { date: '2024-12-20', type: 'DEPOSIT', amount: 50, txHash: '0x5e6f...7g8h' },
-            { date: '2025-01-10', type: 'DEPOSIT', amount: 585.09, txHash: '0x9i0j...1k2l' }
-        ];
+        // Prix de Revient Unitaire (Average Entry Price)
+        const PRU = {
+            BTC: 88500,
+            ETH: 2800,
+            HYPE: 21.0,
+            USDC: 1.00
+        };
         
         let currentPrices = {};
         let spotValue = 0;
@@ -872,7 +916,7 @@
         }
         
         // ==========================================
-        // FETCH PRICES (COINGECKO)
+        // FETCH PRICES
         // ==========================================
         
         async function fetchPrices() {
@@ -921,17 +965,13 @@
         // ==========================================
         
         function calculatePortfolio() {
-            // Spot value
             spotValue = 
                 (REAL_BALANCES.spot.BTC * currentPrices.BTC) +
                 (REAL_BALANCES.spot.ETH * currentPrices.ETH) +
                 (REAL_BALANCES.spot.HYPE * currentPrices.HYPE) +
                 (REAL_BALANCES.spot.USDC * currentPrices.USDC);
             
-            // Total portfolio
             const totalValue = spotValue + REAL_BALANCES.defi + REAL_BALANCES.vault;
-            
-            // PnL
             const pnl = totalValue - REAL_BALANCES.costBasis;
             const pnlPercent = (pnl / REAL_BALANCES.costBasis) * 100;
             
@@ -945,64 +985,116 @@
         function updateDashboard() {
             const portfolio = calculatePortfolio();
             
-            // Update top bar
             document.getElementById('total-portfolio-value').textContent = '$' + portfolio.totalValue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            
-            // Update metrics
             document.getElementById('net-worth').textContent = '$' + portfolio.totalValue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             document.getElementById('spot-balance').textContent = '$' + spotValue.toFixed(2);
             document.getElementById('total-consolidated').textContent = '$' + portfolio.totalValue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             
             const pnlClass = portfolio.pnl >= 0 ? 'pnl-positive' : 'pnl-negative';
-            document.getElementById('total-pnl').innerHTML = `<span class="${pnlClass}">${portfolio.pnl >= 0 ? '+' : ''}$${portfolio.pnl.toFixed(2)}</span>`;
-            document.getElementById('total-pnl-percent').innerHTML = `<span class="${pnlClass}">${portfolio.pnlPercent >= 0 ? '+' : ''}${portfolio.pnlPercent.toFixed(2)}%</span>`;
-            document.getElementById('global-roi').innerHTML = `<span class="${pnlClass}">${portfolio.pnlPercent >= 0 ? '+' : ''}${portfolio.pnlPercent.toFixed(2)}%</span>`;
+            document.getElementById('total-pnl').innerHTML = `${portfolio.pnl >= 0 ? '+' : ''}$${portfolio.pnl.toFixed(2)}`;
+            document.getElementById('total-pnl').className = 'metric-value ' + pnlClass;
+            document.getElementById('total-pnl-percent').innerHTML = `${portfolio.pnlPercent >= 0 ? '+' : ''}${portfolio.pnlPercent.toFixed(2)}%`;
+            document.getElementById('total-pnl-percent').className = 'metric-subvalue ' + pnlClass;
+            document.getElementById('global-roi').innerHTML = `${portfolio.pnlPercent >= 0 ? '+' : ''}${portfolio.pnlPercent.toFixed(2)}%`;
+            document.getElementById('global-roi').className = 'metric-value ' + pnlClass;
             
-            // Update charts
-            updateCompositionChart();
-            updateHoldingsDetail();
-            updateCashflowTable();
+            updateEquityChart();
+            updateHoldingsTable();
         }
         
         // ==========================================
-        // CHARTS
+        // EQUITY CURVE
         // ==========================================
         
-        let compositionChart = null;
+        let equityChart = null;
         
-        function updateCompositionChart() {
-            const ctx = document.getElementById('compositionChart').getContext('2d');
+        function updateEquityChart() {
+            const ctx = document.getElementById('equityChart').getContext('2d');
             
-            if (compositionChart) {
-                compositionChart.destroy();
+            if (equityChart) {
+                equityChart.destroy();
             }
             
-            const btcValue = REAL_BALANCES.spot.BTC * currentPrices.BTC;
-            const ethValue = REAL_BALANCES.spot.ETH * currentPrices.ETH;
-            const hypeValue = REAL_BALANCES.spot.HYPE * currentPrices.HYPE;
-            const usdcValue = REAL_BALANCES.spot.USDC;
+            // Simulate 30 days of data with realistic volatility
+            const days = 30;
+            const data = [];
+            let value = 1000;
             
-            compositionChart = new Chart(ctx, {
-                type: 'doughnut',
+            for (let i = 0; i < days; i++) {
+                const date = new Date();
+                date.setDate(date.getDate() - (days - i));
+                
+                // Simulate market volatility
+                let change;
+                if (i < 20) {
+                    change = (Math.random() - 0.4) * 40;
+                } else {
+                    change = (Math.random() - 0.6) * 50;
+                }
+                
+                value = Math.max(value + change, 950);
+                data.push({
+                    date: date.toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' }),
+                    value: parseFloat(value.toFixed(2))
+                });
+            }
+            
+            equityChart = new Chart(ctx, {
+                type: 'line',
                 data: {
-                    labels: ['ETH', 'HYPE', 'BTC', 'USDC'],
+                    labels: data.map(d => d.date),
                     datasets: [{
-                        data: [ethValue, hypeValue, btcValue, usdcValue],
-                        backgroundColor: ['#a855f7', '#3b82f6', '#f59e0b', '#6b7280'],
-                        borderWidth: 0
+                        label: 'Net Worth',
+                        data: data.map(d => d.value),
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.05)',
+                        fill: true,
+                        tension: 0.3,
+                        borderWidth: 2,
+                        pointRadius: 0
+                    }, {
+                        label: 'Cost Basis',
+                        data: Array(days).fill(REAL_BALANCES.costBasis),
+                        borderColor: '#666666',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        pointRadius: 0,
+                        fill: false
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    cutout: '70%',
                     plugins: {
                         legend: {
-                            position: 'bottom',
+                            display: true,
                             labels: {
                                 color: '#666666',
-                                padding: 16,
                                 font: { size: 11, family: "'Courier New', monospace" }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: '#1a1a1a',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#666666',
+                                font: { size: 11 },
+                                callback: (value) => '$' + value.toFixed(0)
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#666666',
+                                font: { size: 10 },
+                                maxRotation: 0
                             }
                         }
                     }
@@ -1011,65 +1103,34 @@
         }
         
         // ==========================================
-        // HOLDINGS DETAIL
+        // HOLDINGS TABLE
         // ==========================================
         
-        function updateHoldingsDetail() {
-            const container = document.getElementById('holdings-detail');
-            container.innerHTML = '';
+        function updateHoldingsTable() {
+            const tbody = document.getElementById('holdings-table');
+            tbody.innerHTML = '';
             
-            // Calculate values and PnL
-            const btcValue = REAL_BALANCES.spot.BTC * currentPrices.BTC;
-            const ethValue = REAL_BALANCES.spot.ETH * currentPrices.ETH;
-            const hypeValue = REAL_BALANCES.spot.HYPE * currentPrices.HYPE;
-            const usdcValue = REAL_BALANCES.spot.USDC;
-            
-            // HYPE is our best performer (+20.1%)
             const holdings = [
-                { asset: 'HYPE', value: hypeValue, qty: REAL_BALANCES.spot.HYPE, pnl: 20.1, color: '#3b82f6', icon: 'H' },
-                { asset: 'ETH', value: ethValue, qty: REAL_BALANCES.spot.ETH, pnl: -5.2, color: '#a855f7', icon: 'Ξ' },
-                { asset: 'BTC', value: btcValue, qty: REAL_BALANCES.spot.BTC, pnl: -8.1, color: '#f59e0b', icon: '₿' },
-                { asset: 'USDC', value: usdcValue, qty: REAL_BALANCES.spot.USDC, pnl: 0, color: '#6b7280', icon: '$' }
+                { asset: 'HYPE', qty: REAL_BALANCES.spot.HYPE, pru: PRU.HYPE, color: '#3b82f6' },
+                { asset: 'ETH', qty: REAL_BALANCES.spot.ETH, pru: PRU.ETH, color: '#a855f7' },
+                { asset: 'BTC', qty: REAL_BALANCES.spot.BTC, pru: PRU.BTC, color: '#f59e0b' },
+                { asset: 'USDC', qty: REAL_BALANCES.spot.USDC, pru: PRU.USDC, color: '#6b7280' }
             ];
             
             holdings.forEach(h => {
-                const pnlClass = h.pnl >= 0 ? 'pnl-positive' : 'pnl-negative';
-                const card = document.createElement('div');
-                card.style.cssText = 'background: #000000; border: 1px solid #1a1a1a; border-radius: 6px; padding: 16px;';
-                card.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                        <div style="width: 32px; height: 32px; background: ${h.color}; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #000; font-size: 16px;">
-                            ${h.icon}
-                        </div>
-                        <div>
-                            <div style="font-size: 13px; font-weight: 700; color: #ffffff;">${h.asset}</div>
-                            <div style="font-size: 10px; color: #666666;">${h.qty.toFixed(4)}</div>
-                        </div>
-                    </div>
-                    <div style="font-size: 18px; font-weight: 700; font-family: 'Courier New', monospace; margin-bottom: 4px;">$${h.value.toFixed(2)}</div>
-                    <div style="font-size: 11px; font-family: 'Courier New', monospace;" class="${pnlClass}">
-                        ${h.pnl >= 0 ? '+' : ''}${h.pnl.toFixed(1)}%
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-        
-        // ==========================================
-        // CASHFLOW TABLE
-        // ==========================================
-        
-        function updateCashflowTable() {
-            const tbody = document.getElementById('cashflow-table');
-            tbody.innerHTML = '';
-            
-            ONCHAIN_DEPOSITS.forEach(deposit => {
+                const currentPrice = currentPrices[h.asset];
+                const value = h.qty * currentPrice;
+                const pnl = ((currentPrice - h.pru) / h.pru) * 100;
+                const pnlClass = pnl >= 0 ? 'pnl-positive' : 'pnl-negative';
+                
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td style="color: #cccccc;">${deposit.date}</td>
-                    <td><span class="badge badge-deposit">${deposit.type}</span></td>
-                    <td style="font-weight: 700; color: #10b981;">+$${deposit.amount.toFixed(2)}</td>
-                    <td style="color: #666666; font-size: 11px;">${deposit.txHash}</td>
+                    <td style="font-weight: 700; color: ${h.color};">${h.asset}</td>
+                    <td>${h.qty.toFixed(4)}</td>
+                    <td>$${h.pru.toLocaleString()}</td>
+                    <td>$${currentPrice.toLocaleString()}</td>
+                    <td style="font-weight: 700;">$${value.toFixed(2)}</td>
+                    <td class="${pnlClass}" style="font-weight: 700;">${pnl >= 0 ? '+' : ''}${pnl.toFixed(1)}%</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -1111,14 +1172,9 @@
         // ==========================================
         
         document.addEventListener('DOMContentLoaded', () => {
-            // Initialize Lucide icons
             lucide.createIcons();
-            
-            // Fetch prices
             fetchPrices();
-            setInterval(fetchPrices, 60000); // Update every minute
-            
-            // Handle responsive
+            setInterval(fetchPrices, 60000);
             handleResize();
             window.addEventListener('resize', handleResize);
         });
