@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KRYPTOSPHERE® NEOMA - Asset Management Terminal</title>
+    <title>KRYPTOSPHERE® NEOMA - Secure Terminal</title>
     
-    <!-- Favicon High Resolution -->
+    <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="logo.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="logo.png">
     <link rel="shortcut icon" type="image/png" href="logo.png">
-    <link rel="apple-touch-icon" href="logo.png">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -49,7 +47,7 @@
         }
         
         .sidebar-logo {
-            padding: 32px 0;
+            padding: 32px 0 20px 0;
             border-bottom: 1px solid #1a1a1a;
             text-align: center;
         }
@@ -60,6 +58,66 @@
             margin: 0 auto;
             display: block;
             filter: brightness(1.15);
+        }
+        
+        .access-key-container {
+            padding: 16px 20px;
+            border-bottom: 1px solid #1a1a1a;
+        }
+        
+        .access-key-input {
+            width: 100%;
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            border-radius: 4px;
+            padding: 8px 12px;
+            color: #ffffff;
+            font-size: 11px;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+        }
+        
+        .access-key-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+        }
+        
+        .access-key-input.error {
+            border-color: #ef4444;
+            animation: shake 0.3s;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .access-key-label {
+            font-size: 9px;
+            color: #666666;
+            letter-spacing: 1px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        
+        .locked-value {
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+            color: #333333;
+        }
+        
+        .decrypt-animation {
+            animation: decrypt 0.5s ease;
+        }
+        
+        @keyframes decrypt {
+            0% { opacity: 0; transform: scaleY(0); filter: blur(10px); }
+            50% { opacity: 0.5; filter: blur(5px); }
+            100% { opacity: 1; transform: scaleY(1); filter: blur(0); }
         }
         
         .nav-item {
@@ -327,6 +385,18 @@
             <img src="logo.png" alt="KRYPTOSPHERE® NEOMA">
         </div>
         
+        <!-- Access Key Input -->
+        <div class="access-key-container">
+            <div class="access-key-label">ACCESS KEY</div>
+            <input 
+                type="password" 
+                id="access-key-input" 
+                class="access-key-input" 
+                placeholder="Enter security key..."
+                autocomplete="off"
+            />
+        </div>
+        
         <nav style="flex: 1; padding-top: 20px;">
             <div class="nav-item active" onclick="showPage('dashboard-spot')">
                 <i data-lucide="trending-up" style="width: 20px; height: 20px;"></i>
@@ -340,7 +410,7 @@
             
             <div class="nav-item" onclick="showPage('qui-sommes-nous')">
                 <i data-lucide="users" style="width: 20px; height: 20px;"></i>
-                <span>Qui Sommes-Nous ?</span>
+                <span>À Propos</span>
             </div>
             
             <div class="nav-item" onclick="showPage('ips-strategy')">
@@ -354,13 +424,13 @@
             </div>
         </nav>
         
-        <div style="padding: 20px 24px; border-top: 1px solid #1a1a1a;">
+        <div id="proof-of-reserves-section" style="padding: 20px 24px; border-top: 1px solid #1a1a1a; display: none;">
             <div style="font-size: 9px; color: #333333; margin-bottom: 12px; letter-spacing: 1px; font-weight: 700;">PROOF OF RESERVES</div>
-            <a href="https://app.hyperliquid.xyz/explorer/0xD9A7f757620d9B7D895aa04acD6CfE3c0F68F702" target="_blank" class="proof-link">
+            <a id="hyperliquid-link" href="#" target="_blank" class="proof-link">
                 <i data-lucide="link-2" style="width: 14px; height: 14px;"></i>
                 <span>Hyperliquid Spot</span>
             </a>
-            <a href="https://debank.com/profile/0xcba1ce97b366828f4f40314cce7c3c65d65605ef" target="_blank" class="proof-link">
+            <a id="debank-link" href="#" target="_blank" class="proof-link">
                 <i data-lucide="link-2" style="width: 14px; height: 14px;"></i>
                 <span>Arbitrum DeFi</span>
             </a>
@@ -408,7 +478,7 @@
             </div>
             <div class="total-portfolio">
                 <span style="font-size: 10px; color: #666666; letter-spacing: 1px; font-weight: 700;">TOTAL PORTFOLIO</span>
-                <span class="total-portfolio-value" id="total-portfolio-value">$1,124.41</span>
+                <span class="total-portfolio-value" id="total-portfolio-value">XXXX.XX</span>
             </div>
         </div>
 
@@ -426,17 +496,17 @@
                 </button>
             </div>
             
-            <!-- Performance Comparison -->
+            <!-- Performance Comparison (ALWAYS VISIBLE) -->
             <div style="background: #0a0a0a; border: 1px solid #3b82f6; border-radius: 6px; padding: 20px; margin-bottom: 32px;">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div>
-                        <div style="font-size: 11px; color: #666666; letter-spacing: 1px; margin-bottom: 8px;">PERFORMANCE VS MARKET</div>
+                        <div style="font-size: 11px; color: #666666; letter-spacing: 1px; margin-bottom: 8px;">PERFORMANCE VS MARKET (Since 15/11/2025)</div>
                         <div style="font-size: 24px; font-weight: 800; font-family: 'Courier New', monospace;">
                             <span class="pnl-negative">Portfolio: -7.16%</span>
                             <span style="color: #444444; margin: 0 12px;">vs</span>
                             <span class="pnl-negative">CMC20: -24.59%</span>
                         </div>
-                        <div style="font-size: 12px; color: #10b981; margin-top: 8px; font-weight: 600;">
+                        <div style="font-size: 14px; color: #10b981; margin-top: 8px; font-weight: 700;">
                             ✓ Outperforming Market by +17.43%
                         </div>
                     </div>
@@ -448,7 +518,7 @@
                 <div class="metric-card">
                     <div class="metric-label">NET WORTH</div>
                     <div class="metric-value" id="net-worth" style="color: #10b981;">
-                        $1,124.41
+                        <span class="locked-value">XXXX.XX</span>
                     </div>
                     <div class="metric-subvalue" style="color: #666666;">
                         Current Value
@@ -457,8 +527,8 @@
                 
                 <div class="metric-card">
                     <div class="metric-label">COST BASIS</div>
-                    <div class="metric-value" style="color: #666666;">
-                        $1,213.09
+                    <div class="metric-value" id="cost-basis" style="color: #666666;">
+                        <span class="locked-value">XXXX.XX</span>
                     </div>
                     <div class="metric-subvalue" style="color: #444444;">
                         Total Invested
@@ -468,16 +538,16 @@
                 <div class="metric-card">
                     <div class="metric-label">UNREALIZED PNL</div>
                     <div class="metric-value pnl-negative" id="total-pnl">
-                        -$88.68
+                        <span class="locked-value">-XX.XX</span>
                     </div>
-                    <div class="metric-subvalue pnl-negative" id="total-pnl-percent">
+                    <div class="metric-subvalue pnl-negative">
                         -7.31%
                     </div>
                 </div>
                 
                 <div class="metric-card">
                     <div class="metric-label">GLOBAL ROI</div>
-                    <div class="metric-value pnl-negative" id="global-roi">
+                    <div class="metric-value pnl-negative">
                         -7.31%
                     </div>
                     <div class="metric-subvalue" style="color: #666666;">
@@ -511,25 +581,25 @@
                     <tbody>
                         <tr>
                             <td style="font-weight: 700;">Hyperliquid Spot</td>
-                            <td id="spot-balance" style="color: #3b82f6; font-weight: 700;">$579.41</td>
+                            <td id="spot-balance" style="color: #3b82f6; font-weight: 700;"><span class="locked-value">$XXX.XX</span></td>
                             <td>51.5%</td>
                             <td><span style="font-size: 10px; color: #10b981;">● LIVE</span></td>
                         </tr>
                         <tr>
                             <td style="font-weight: 700;">DeFi Multi-Chain</td>
-                            <td style="color: #10b981; font-weight: 700;">$385.00</td>
+                            <td id="defi-balance" style="color: #10b981; font-weight: 700;"><span class="locked-value">$XXX.XX</span></td>
                             <td>34.3%</td>
                             <td><span style="font-size: 10px; color: #10b981;">● LIVE</span></td>
                         </tr>
                         <tr>
                             <td style="font-weight: 700;">Vault Extended</td>
-                            <td style="color: #a855f7; font-weight: 700;">$160.00</td>
+                            <td id="vault-balance" style="color: #a855f7; font-weight: 700;"><span class="locked-value">$XXX.XX</span></td>
                             <td>14.2%</td>
                             <td><span style="font-size: 10px; color: #f59e0b;">● MANUAL</span></td>
                         </tr>
                         <tr style="border-top: 2px solid #1a1a1a; background: #050505;">
                             <td style="font-weight: 800;">TOTAL</td>
-                            <td id="total-consolidated" style="color: #10b981; font-weight: 800; font-size: 16px;">$1,124.41</td>
+                            <td id="total-consolidated" style="color: #10b981; font-weight: 800; font-size: 16px;"><span class="locked-value">$XXXX.XX</span></td>
                             <td style="font-weight: 700;">100.0%</td>
                             <td></td>
                         </tr>
@@ -619,14 +689,14 @@
         <div id="page-terminal-defi" class="page-section" style="padding: 32px;">
             
             <h1 style="font-size: 32px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 8px;">TERMINAL DEFI</h1>
-            <p style="color: #666666; font-size: 13px; margin-bottom: 32px; font-family: 'Courier New', monospace;">Multi-Chain Positions · DeBank Integration</p>
+            <p style="color: #666666; font-size: 13px; margin-bottom: 32px; font-family: 'Courier New', monospace;">Multi-Chain Positions</p>
             
             <!-- Metrics -->
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 32px;">
                 <div class="metric-card">
                     <div class="metric-label">TOTAL DEFI</div>
-                    <div class="metric-value" style="color: #10b981;">
-                        $385.00
+                    <div class="metric-value" id="total-defi" style="color: #10b981;">
+                        <span class="locked-value">$XXX.XX</span>
                     </div>
                     <div class="metric-subvalue" style="color: #666666;">
                         Multi-Chain Positions
@@ -635,8 +705,8 @@
                 
                 <div class="metric-card">
                     <div class="metric-label">ARBITRUM</div>
-                    <div class="metric-value" style="color: #3b82f6; font-size: 24px;">
-                        $196.35
+                    <div class="metric-value" id="arbitrum-value" style="color: #3b82f6; font-size: 24px;">
+                        <span class="locked-value">$XXX.XX</span>
                     </div>
                     <div class="metric-subvalue" style="color: #666666;">
                         51% of DeFi
@@ -645,8 +715,8 @@
                 
                 <div class="metric-card">
                     <div class="metric-label">ETHEREUM</div>
-                    <div class="metric-value" style="color: #a855f7; font-size: 24px;">
-                        $188.65
+                    <div class="metric-value" id="ethereum-value" style="color: #a855f7; font-size: 24px;">
+                        <span class="locked-value">$XXX.XX</span>
                     </div>
                     <div class="metric-subvalue" style="color: #666666;">
                         49% of DeFi
@@ -655,29 +725,13 @@
                 
                 <div class="metric-card">
                     <div class="metric-label">VAULT EXTENDED</div>
-                    <div class="metric-value" style="color: #f59e0b; font-size: 24px;">
-                        $160.00
+                    <div class="metric-value" id="vault-extended" style="color: #f59e0b; font-size: 24px;">
+                        <span class="locked-value">$XXX.XX</span>
                     </div>
                     <div class="metric-subvalue" style="color: #666666;">
                         Manual Tracking
                     </div>
                 </div>
-            </div>
-            
-            <!-- DeBank Link -->
-            <div style="background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 6px; padding: 32px; text-align: center;">
-                <div style="display: inline-flex; align-items: center; gap: 12px; background: #10b98120; padding: 12px 24px; border-radius: 6px; margin-bottom: 24px;">
-                    <i data-lucide="activity" style="width: 20px; height: 20px; color: #10b981;"></i>
-                    <span style="font-weight: 700; color: #10b981; font-size: 13px; letter-spacing: 0.5px;">LIVE TRACKING - DEBANK</span>
-                </div>
-                <p style="color: #888888; margin-bottom: 32px; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.6;">
-                    Tracking en temps réel de toutes les positions DeFi sur Arbitrum et Ethereum via DeBank. 
-                    Visualisez les protocoles actifs, rendements, et répartition détaillée.
-                </p>
-                <a href="https://debank.com/profile/0xcba1ce97b366828f4f40314cce7c3c65d65605ef" target="_blank" style="display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 14px 32px; border-radius: 6px; color: #000000; text-decoration: none; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; transition: all 0.3s;">
-                    <i data-lucide="external-link" style="width: 18px; height: 18px;"></i>
-                    <span>VOIR SUR DEBANK</span>
-                </a>
             </div>
             
         </div>
@@ -751,7 +805,7 @@
                     <div style="display: grid; grid-template-columns: 1fr; gap: 24px; max-width: 500px;">
                         <div style="padding: 20px; background: #000000; border: 1px solid #1a1a1a; border-radius: 6px; text-align: center;">
                             <div style="font-size: 11px; color: #666666; margin-bottom: 12px; letter-spacing: 1px;">Investment Supervisors</div>
-                            <div style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">Le Board</div>
+                            <div style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">Investment Board</div>
                             <div style="height: 60px; border-bottom: 2px solid #1a1a1a; margin: 16px 0;"></div>
                             <div style="font-size: 11px; color: #444444; font-family: 'Courier New', monospace;">KRYPTOSPHERE® NEOMA</div>
                             <div style="font-size: 11px; color: #444444; font-family: 'Courier New', monospace; margin-top: 4px;">Date: 01/02/2026</div>
@@ -865,31 +919,125 @@
     <!-- JAVASCRIPT -->
     <script>
         // ==========================================
-        // CONFIGURATION
+        // SECURITY - ACCESS KEY
         // ==========================================
         
-        const REAL_BALANCES = {
-            spot: {
-                BTC: 0.0034,
-                ETH: 0.0839,
-                HYPE: 2.5183,
-                USDC: 46.73
-            },
-            defi: 385.00,
-            vault: 160.00,
-            costBasis: 1213.09
-        };
+        const ACCESS_KEY = 'KS-N30MA-ALPHA-99X!';
+        let isUnlocked = false;
         
-        // Prix de Revient Unitaire (Average Entry Price)
-        const PRU = {
-            BTC: 88500,
-            ETH: 2800,
-            HYPE: 21.0,
-            USDC: 1.00
+        // Secure Data Vault (not in DOM by default)
+        const SECURE_DATA = {
+            balances: {
+                spot: {
+                    BTC: 0.0034,
+                    ETH: 0.0839,
+                    HYPE: 2.5183,
+                    USDC: 46.73
+                },
+                defi: 385.00,
+                vault: 160.00,
+                costBasis: 1213.09
+            },
+            pru: {
+                BTC: 87500,
+                ETH: 2750,
+                HYPE: 24.0,
+                USDC: 1.00
+            },
+            links: {
+                hyperliquid: 'https://app.hyperliquid.xyz/explorer/0xD9A7f757620d9B7D895aa04acD6CfE3c0F68F702',
+                debank: 'https://debank.com/profile/0xcba1ce97b366828f4f40314cce7c3c65d65605ef'
+            }
         };
         
         let currentPrices = {};
         let spotValue = 0;
+        
+        // ==========================================
+        // ACCESS KEY VALIDATION
+        // ==========================================
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const keyInput = document.getElementById('access-key-input');
+            
+            keyInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    validateAccessKey(keyInput.value);
+                }
+            });
+            
+            keyInput.addEventListener('blur', () => {
+                if (keyInput.value.length > 0) {
+                    validateAccessKey(keyInput.value);
+                }
+            });
+        });
+        
+        function validateAccessKey(input) {
+            const keyInput = document.getElementById('access-key-input');
+            
+            if (input === ACCESS_KEY) {
+                isUnlocked = true;
+                keyInput.style.borderColor = '#10b981';
+                keyInput.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.3)';
+                
+                // Show proof of reserves
+                document.getElementById('proof-of-reserves-section').style.display = 'block';
+                document.getElementById('hyperliquid-link').href = SECURE_DATA.links.hyperliquid;
+                document.getElementById('debank-link').href = SECURE_DATA.links.debank;
+                
+                // Unlock all values with animation
+                unlockAllValues();
+                
+                setTimeout(() => {
+                    keyInput.value = '';
+                    keyInput.placeholder = 'Access Granted ✓';
+                    keyInput.disabled = true;
+                }, 500);
+            } else {
+                keyInput.classList.add('error');
+                setTimeout(() => {
+                    keyInput.classList.remove('error');
+                    keyInput.value = '';
+                }, 300);
+            }
+        }
+        
+        function unlockAllValues() {
+            const portfolio = calculatePortfolio();
+            
+            // Unlock with animation
+            setTimeout(() => decryptValue('total-portfolio-value', '$' + portfolio.totalValue.toFixed(2)), 100);
+            setTimeout(() => decryptValue('net-worth', '$' + portfolio.totalValue.toFixed(2)), 200);
+            setTimeout(() => decryptValue('cost-basis', '$' + SECURE_DATA.balances.costBasis.toFixed(2)), 300);
+            setTimeout(() => decryptValue('total-pnl', (portfolio.pnl >= 0 ? '+' : '') + '$' + portfolio.pnl.toFixed(2)), 400);
+            setTimeout(() => decryptValue('spot-balance', '$' + spotValue.toFixed(2)), 500);
+            setTimeout(() => decryptValue('defi-balance', '$' + SECURE_DATA.balances.defi.toFixed(2)), 600);
+            setTimeout(() => decryptValue('vault-balance', '$' + SECURE_DATA.balances.vault.toFixed(2)), 700);
+            setTimeout(() => decryptValue('total-consolidated', '$' + portfolio.totalValue.toFixed(2)), 800);
+            setTimeout(() => decryptValue('total-defi', '$' + SECURE_DATA.balances.defi.toFixed(2)), 900);
+            setTimeout(() => decryptValue('arbitrum-value', '$196.35'), 1000);
+            setTimeout(() => decryptValue('ethereum-value', '$188.65'), 1100);
+            setTimeout(() => decryptValue('vault-extended', '$' + SECURE_DATA.balances.vault.toFixed(2)), 1200);
+            
+            // Update holdings table
+            setTimeout(() => updateHoldingsTable(), 1300);
+        }
+        
+        function decryptValue(elementId, realValue) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            const lockedSpan = element.querySelector('.locked-value');
+            if (lockedSpan) {
+                lockedSpan.classList.add('decrypt-animation');
+                lockedSpan.textContent = realValue;
+                lockedSpan.style.color = '#ffffff';
+            } else {
+                element.classList.add('decrypt-animation');
+                element.textContent = realValue;
+            }
+        }
         
         // ==========================================
         // NAVIGATION
@@ -924,21 +1072,18 @@
                 const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,hyperliquid&vs_currencies=usd&include_24hr_change=true');
                 const data = await response.json();
                 
-                // BTC
                 const btcPrice = data.bitcoin.usd;
                 const btcChange = data.bitcoin.usd_24h_change;
                 document.getElementById('btc-price').textContent = '$' + btcPrice.toLocaleString('en-US', {maximumFractionDigits: 0});
                 updatePriceChange('btc-change', btcChange);
                 currentPrices.BTC = btcPrice;
                 
-                // ETH
                 const ethPrice = data.ethereum.usd;
                 const ethChange = data.ethereum.usd_24h_change;
                 document.getElementById('eth-price').textContent = '$' + ethPrice.toLocaleString('en-US', {maximumFractionDigits: 0});
                 updatePriceChange('eth-change', ethChange);
                 currentPrices.ETH = ethPrice;
                 
-                // HYPE
                 const hypePrice = data.hyperliquid.usd;
                 const hypeChange = data.hyperliquid.usd_24h_change;
                 document.getElementById('hype-price').textContent = '$' + hypePrice.toFixed(2);
@@ -965,15 +1110,19 @@
         // ==========================================
         
         function calculatePortfolio() {
-            spotValue = 
-                (REAL_BALANCES.spot.BTC * currentPrices.BTC) +
-                (REAL_BALANCES.spot.ETH * currentPrices.ETH) +
-                (REAL_BALANCES.spot.HYPE * currentPrices.HYPE) +
-                (REAL_BALANCES.spot.USDC * currentPrices.USDC);
+            if (!isUnlocked) {
+                return { totalValue: 0, pnl: 0, pnlPercent: 0 };
+            }
             
-            const totalValue = spotValue + REAL_BALANCES.defi + REAL_BALANCES.vault;
-            const pnl = totalValue - REAL_BALANCES.costBasis;
-            const pnlPercent = (pnl / REAL_BALANCES.costBasis) * 100;
+            spotValue = 
+                (SECURE_DATA.balances.spot.BTC * currentPrices.BTC) +
+                (SECURE_DATA.balances.spot.ETH * currentPrices.ETH) +
+                (SECURE_DATA.balances.spot.HYPE * currentPrices.HYPE) +
+                (SECURE_DATA.balances.spot.USDC * currentPrices.USDC);
+            
+            const totalValue = spotValue + SECURE_DATA.balances.defi + SECURE_DATA.balances.vault;
+            const pnl = totalValue - SECURE_DATA.balances.costBasis;
+            const pnlPercent = (pnl / SECURE_DATA.balances.costBasis) * 100;
             
             return { totalValue, pnl, pnlPercent };
         }
@@ -983,21 +1132,9 @@
         // ==========================================
         
         function updateDashboard() {
+            if (!isUnlocked) return;
+            
             const portfolio = calculatePortfolio();
-            
-            document.getElementById('total-portfolio-value').textContent = '$' + portfolio.totalValue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            document.getElementById('net-worth').textContent = '$' + portfolio.totalValue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            document.getElementById('spot-balance').textContent = '$' + spotValue.toFixed(2);
-            document.getElementById('total-consolidated').textContent = '$' + portfolio.totalValue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            
-            const pnlClass = portfolio.pnl >= 0 ? 'pnl-positive' : 'pnl-negative';
-            document.getElementById('total-pnl').innerHTML = `${portfolio.pnl >= 0 ? '+' : ''}$${portfolio.pnl.toFixed(2)}`;
-            document.getElementById('total-pnl').className = 'metric-value ' + pnlClass;
-            document.getElementById('total-pnl-percent').innerHTML = `${portfolio.pnlPercent >= 0 ? '+' : ''}${portfolio.pnlPercent.toFixed(2)}%`;
-            document.getElementById('total-pnl-percent').className = 'metric-subvalue ' + pnlClass;
-            document.getElementById('global-roi').innerHTML = `${portfolio.pnlPercent >= 0 ? '+' : ''}${portfolio.pnlPercent.toFixed(2)}%`;
-            document.getElementById('global-roi').className = 'metric-value ' + pnlClass;
-            
             updateEquityChart();
             updateHoldingsTable();
         }
@@ -1015,7 +1152,6 @@
                 equityChart.destroy();
             }
             
-            // Simulate 30 days of data with realistic volatility
             const days = 30;
             const data = [];
             let value = 1000;
@@ -1024,7 +1160,6 @@
                 const date = new Date();
                 date.setDate(date.getDate() - (days - i));
                 
-                // Simulate market volatility
                 let change;
                 if (i < 20) {
                     change = (Math.random() - 0.4) * 40;
@@ -1054,7 +1189,7 @@
                         pointRadius: 0
                     }, {
                         label: 'Cost Basis',
-                        data: Array(days).fill(REAL_BALANCES.costBasis),
+                        data: Array(days).fill(isUnlocked ? SECURE_DATA.balances.costBasis : 1200),
                         borderColor: '#666666',
                         borderWidth: 2,
                         borderDash: [5, 5],
@@ -1084,7 +1219,7 @@
                             ticks: {
                                 color: '#666666',
                                 font: { size: 11 },
-                                callback: (value) => '$' + value.toFixed(0)
+                                callback: (value) => isUnlocked ? '$' + value.toFixed(0) : '***'
                             }
                         },
                         x: {
@@ -1110,11 +1245,31 @@
             const tbody = document.getElementById('holdings-table');
             tbody.innerHTML = '';
             
+            if (!isUnlocked) {
+                // Show locked placeholders
+                const assets = ['HYPE', 'ETH', 'BTC', 'USDC'];
+                const colors = { HYPE: '#3b82f6', ETH: '#a855f7', BTC: '#f59e0b', USDC: '#6b7280' };
+                
+                assets.forEach(asset => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td style="font-weight: 700; color: ${colors[asset]};">${asset}</td>
+                        <td><span class="locked-value">X.XXXX</span></td>
+                        <td><span class="locked-value">$XX,XXX</span></td>
+                        <td>$${currentPrices[asset]?.toLocaleString() || '--'}</td>
+                        <td><span class="locked-value">$XXX.XX</span></td>
+                        <td><span class="locked-value">±XX.X%</span></td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                return;
+            }
+            
             const holdings = [
-                { asset: 'HYPE', qty: REAL_BALANCES.spot.HYPE, pru: PRU.HYPE, color: '#3b82f6' },
-                { asset: 'ETH', qty: REAL_BALANCES.spot.ETH, pru: PRU.ETH, color: '#a855f7' },
-                { asset: 'BTC', qty: REAL_BALANCES.spot.BTC, pru: PRU.BTC, color: '#f59e0b' },
-                { asset: 'USDC', qty: REAL_BALANCES.spot.USDC, pru: PRU.USDC, color: '#6b7280' }
+                { asset: 'HYPE', qty: SECURE_DATA.balances.spot.HYPE, pru: SECURE_DATA.pru.HYPE, color: '#3b82f6' },
+                { asset: 'ETH', qty: SECURE_DATA.balances.spot.ETH, pru: SECURE_DATA.pru.ETH, color: '#a855f7' },
+                { asset: 'BTC', qty: SECURE_DATA.balances.spot.BTC, pru: SECURE_DATA.pru.BTC, color: '#f59e0b' },
+                { asset: 'USDC', qty: SECURE_DATA.balances.spot.USDC, pru: SECURE_DATA.pru.USDC, color: '#6b7280' }
             ];
             
             holdings.forEach(h => {
@@ -1177,6 +1332,8 @@
             setInterval(fetchPrices, 60000);
             handleResize();
             window.addEventListener('resize', handleResize);
+            updateEquityChart();
+            updateHoldingsTable();
         });
     </script>
 
